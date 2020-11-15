@@ -1,0 +1,7 @@
+.ccls-cache/**
+kernel
+qemu
+*.o
+*.d
+*.bin
+*.img
