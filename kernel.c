@@ -1,5 +1,5 @@
 #include "at91rm9200.h"
-#include "ivt.h"
+#include "exception.h"
 #include "stdio.h"
 #include "string.h"
 

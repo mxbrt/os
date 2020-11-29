@@ -25,7 +25,7 @@ CFLAGS= \
 		-g
 
 LSCRIPT = kernel.ld
-OBJ = kernel.o start.o ivt.o string.o stdio.o
+OBJ = kernel.o start.o ivt.o string.o stdio.o exception.o
 CROSS = arm-none-eabi-
 CC = $(CROSS)gcc
 LD = $(CROSS)ld
