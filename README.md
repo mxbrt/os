@@ -17,12 +17,12 @@ in the main directory named `qemu`.
 We for example added a symlink to our qemu binarys build as described in the kvv
 forums by leonard koenig:
 ```
-ln -s ../qemu-build/arm-softmmu/qemu-system-arm qemu
+ln -s ../qemu-build/arm-softmmu/qemu-system-arm build/qemu
 ```
 
 To run our code you (hopefully!) only need to call
 ```
-make run
+cd build && make run
 ```
 
 Have fun!
