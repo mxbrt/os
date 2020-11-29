@@ -24,8 +24,8 @@ CFLAGS= \
 		-std=c11 \
 		-g
 
-OBJ = start.o
 LSCRIPT = kernel.ld
+OBJ = kernel.o start.o ivt.o string.o stdio.o
 CROSS = arm-none-eabi-
 CC = $(CROSS)gcc
 LD = $(CROSS)ld
