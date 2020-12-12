@@ -1,16 +1,8 @@
-#include "at91rm9200.h"
-#include "exception.h"
+#include "arch.h"
 #include "stdio.h"
 #include "string.h"
 
-void memory_remap(void) {
-  AT91C_BASE_MC->MC_RCR = AT91C_MC_RCB;
-}
-
-void kernel(void) {
-  memory_remap();
-  memcpy((void*)0x4, ivt, sizeof(ivt));
-
+void main(void) {
   printf("Send x to demonstrate printf-formatting\n");
   while (1) {
     char c = (char)getchar();
@@ -32,4 +24,9 @@ void kernel(void) {
       __asm volatile("svc 0x1"); \
     }
   }
+}
+
+void kernel(void) {
+  init();
+  main();
 }

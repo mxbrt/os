@@ -13,7 +13,7 @@ void __attribute__((interrupt ("UNDEF"))) undef_handler(void) {
 void __attribute__((interrupt ("SWI"))) swi_handler(void) {
   int syscall_number;
   __asm volatile("ldrb %0, [lr, #-0x4]" : "=r" (syscall_number));
-  PANIC("Got syscall: %x\n", syscall_number);
+  printf("Got syscall: %x\n", syscall_number);
 }
 
 void __attribute__((interrupt ("ABORT"))) prefetch_abort_handler(void) {
