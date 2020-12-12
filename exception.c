@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#include "at91rm9200.h"
 #include "exception.h"
 #include "stdio.h"
 #include "panic.h"
@@ -28,7 +29,12 @@ void __attribute__((interrupt ("ABORT"))) data_abort_handler(void) {
 }
 
 void __attribute__((interrupt ("IRQ"))) irq_handler(void) {
-  PANIC("IRQ NOT IMPLEMENTED\n");
+  volatile unsigned int irq_no = AT91C_BASE_AIC->AIC_IVR;
+  volatile unsigned int status = AT91C_BASE_ST->ST_SR;
+  (void)(status);
+  (void)(irq_no);
+  printf("!\n", irq_no, status);
+  AT91C_BASE_AIC->AIC_EOICR = 1;
 }
 
 void __attribute__((interrupt ("FIQ"))) fiq_handler(void) {
