@@ -2,7 +2,7 @@
 #define __EXCEPTION_H_
 
 
-#define N_EXCEPTIONS 6
+#define N_EXCEPTIONS 7
 extern int ivt[N_EXCEPTIONS * 2];
 
 void __attribute__((interrupt ("UNDEF"))) undef_handler(void);
