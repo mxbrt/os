@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include <exception.h>
+#include <dbgu.h>
 #include <stdio.h>
 #include <panic.h>
 
@@ -30,11 +31,22 @@ void __attribute__((interrupt ("ABORT"))) data_abort_handler(void) {
 }
 
 void __attribute__((interrupt ("IRQ"))) irq_handler(void) {
-  volatile unsigned int irq_no = AT91C_BASE_AIC->AIC_IVR;
-  volatile unsigned int status = AT91C_BASE_ST->ST_SR;
-  (void)(status);
-  (void)(irq_no);
-  printf("!\n", irq_no, status);
+  (void)(AT91C_BASE_AIC->AIC_IVR);
+  volatile unsigned int system_time_status = AT91C_BASE_ST->ST_SR;
+  if (system_time_status) {
+    printf("! %x\n", system_time_status);
+    goto out;
+  }
+
+  volatile unsigned int dbgu_status = AT91C_BASE_DBGU->DBGU_CSR;
+  if (dbgu_status & AT91C_US_RXRDY) {
+    dbgu_rx();
+    goto out;
+  }
+
+  PANIC("unknown interrupt");
+
+out:
   AT91C_BASE_AIC->AIC_EOICR = 1;
 }
 

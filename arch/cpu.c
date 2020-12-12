@@ -1,9 +1,9 @@
+#include <cpu.h>
+#include <dbgu.h>
 #include <exception.h>
+#include <panic.h>
 #include <string.h>
 #include <time.h>
-#include <panic.h>
-#include <cpu.h>
-
 #include "at91rm9200.h"
 
 #define SCLK_FREQUENCY 32768
@@ -45,13 +45,17 @@ static void init_system_timer(void) {
 
   AT91C_BASE_ST->ST_PIMR = clock_cycles;
   AT91C_BASE_ST->ST_IER = AT91C_ST_PITS;
+}
 
-  // enable system interrupt
+static void init_aic(void) {
+  // enable system interrupts
   AT91C_BASE_AIC->AIC_IECR = 2;
 }
 
 void init(void) {
   init_exceptions();
+  init_aic();
+  init_dbgu();
   init_system_timer();
   enable_interrupts();
 }
