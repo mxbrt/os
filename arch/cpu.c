@@ -1,9 +1,10 @@
+#include <exception.h>
+#include <string.h>
+#include <time.h>
+#include <panic.h>
+#include <cpu.h>
+
 #include "at91rm9200.h"
-#include "exception.h"
-#include "string.h"
-#include "time.h"
-#include "panic.h"
-#include "arch.h"
 
 #define SCLK_FREQUENCY 32768
 
@@ -26,7 +27,7 @@ void disable_interrupts(void) {
   set_cpsr(cpsr);
 }
 
-void init_exceptions(void) {
+static void init_exceptions(void) {
   // memory remap
   AT91C_BASE_MC->MC_RCR = AT91C_MC_RCB;
 
@@ -34,7 +35,7 @@ void init_exceptions(void) {
   memcpy((void*)0x4, ivt, sizeof(ivt));
 }
 
-void init_system_timer(void) {
+static void init_system_timer(void) {
   // setup system_timer
   unsigned int clock_cycles =
     (unsigned int)((float)SYSTEM_TIMER * ((float) SCLK_FREQUENCY / SEC));

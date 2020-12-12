@@ -1,6 +1,7 @@
-#include "arch.h"
-#include "stdio.h"
-#include "string.h"
+#include <cpu.h>
+#include <dbgu.h>
+#include <stdio.h>
+#include <string.h>
 
 void main(void) {
   printf("Send x to demonstrate printf-formatting\n");

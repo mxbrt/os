@@ -1,16 +1,6 @@
-#include "at91rm9200.h"
-#include "stdio.h"
-#include "string.h"
-
-int getchar(void) {
-  while (!(AT91C_BASE_DBGU->DBGU_CSR & AT91C_US_RXRDY)) {};
-  return (int)AT91C_BASE_DBGU->DBGU_RHR;
-}
-
-int putchar(int c) {
-    AT91C_BASE_DBGU->DBGU_THR = (unsigned int)c;
-    return 1;
-}
+#include <dbgu.h>
+#include <stdio.h>
+#include <string.h>
 
 int puts(const char *s) {
   int cnt = 0;

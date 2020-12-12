@@ -1,9 +1,10 @@
 #include <stdint.h>
 
+#include <exception.h>
+#include <stdio.h>
+#include <panic.h>
+
 #include "at91rm9200.h"
-#include "exception.h"
-#include "stdio.h"
-#include "panic.h"
 
 void __attribute__((interrupt ("UNDEF"))) undef_handler(void) {
   int* undef_instruction;

@@ -3,9 +3,7 @@
 
 #include <stdarg.h>
 
-int getchar(void);
 int printf(const char *format, ...);
-int putchar(int c);
 int puts(const char *s);
 
 #endif // __STDIO_H_

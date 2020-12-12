@@ -3,7 +3,6 @@ VPATH = ../
 # The flags passed to the C compiler.
 CFLAGS= \
 		-mcpu=arm920t \
-		-O2 \
 		-Wall \
 		-Wextra \
 		-Werror	\
@@ -22,10 +21,14 @@ CFLAGS= \
 		-Wswitch-enum \
 		-Wswitch-default \
 		-std=c11 \
+		-I../include \
 		-g
 
 LSCRIPT = kernel.ld
-OBJ = kernel.o start.o ivt.o string.o stdio.o exception.o arch.o
+OBJ += sys/kernel.o
+OBJ += lib/string.o lib/stdio.o
+OBJ += arch/exception.o arch/cpu.o arch/dbgu.o arch/start.o arch/ivt.o
+
 CROSS = arm-none-eabi-
 CC = $(CROSS)gcc
 LD = $(CROSS)ld
@@ -34,9 +37,11 @@ OBJCOPY =$(CROSS)objcopy
 LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 %.o: %.S
+	mkdir -p $(basename $@)
 	$(CC) $(CFLAGS) -MMD -MP -o $@ -c $<
 
 %.o: %.c
+	mkdir -p $(basename $@)
 	$(CC) $(CFLAGS) -MMD -MP -o $@ -c $<
 
 kernel: $(LSCRIPT) $(OBJ)
