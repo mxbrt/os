@@ -26,7 +26,7 @@ CFLAGS= \
 
 LSCRIPT = kernel.ld
 OBJ += sys/kernel.o
-OBJ += lib/string.o lib/stdio.o
+OBJ += lib/string.o lib/stdio.o lib/fifo.o
 OBJ += arch/exception.o arch/cpu.o arch/dbgu.o arch/start.o arch/ivt.o
 
 CROSS = arm-none-eabi-
@@ -60,7 +60,7 @@ all: kernel
 .PHONY: clean
 clean:
 	rm -f kernel kernel.bin kernel.img rm -f $(OBJ)
-	rm -f *.d
+	rm -rf sys lib arch
 
 # these targets assume you symlinked our custom qemu binary as ./qemu
 .PHONY: run
