@@ -34,7 +34,7 @@ void __attribute__((interrupt ("IRQ"))) irq_handler(void) {
   (void)(AT91C_BASE_AIC->AIC_IVR);
   volatile unsigned int system_time_status = AT91C_BASE_ST->ST_SR;
   if (system_time_status) {
-    printf("! %x\n", system_time_status);
+    printf("!\n");
     goto out;
   }
 
