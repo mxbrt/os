@@ -47,3 +47,13 @@ _start:
     bl kernel
 
 _stack_base: .word 0x23FFFFFF
+
+.global get_cpsr
+get_cpsr:
+    mrs r0, CPSR
+    mov pc, lr
+
+.global set_cpsr
+set_cpsr:
+    msr CPSR, r0
+    mov pc, lr
