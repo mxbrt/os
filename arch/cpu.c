@@ -7,6 +7,7 @@
 #include "at91rm9200.h"
 
 #define SCLK_FREQUENCY 32768
+#define INTERNAL_RAM ((void *)0x00200000)
 
 int get_cpsr(void);
 void set_cpsr(int);
@@ -28,11 +29,10 @@ void disable_interrupts(void) {
 }
 
 static void init_exceptions(void) {
+  // initialize exceptions
+  memcpy(INTERNAL_RAM, ivt, sizeof(ivt));
   // memory remap
   AT91C_BASE_MC->MC_RCR = AT91C_MC_RCB;
-
-  // initialize exceptions
-  memcpy((void*)0x4, ivt, sizeof(ivt));
 }
 
 static void init_system_timer(void) {
