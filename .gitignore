@@ -5,3 +5,4 @@ qemu
 *.d
 *.bin
 *.img
+compile_commands.json

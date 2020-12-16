@@ -1,9 +1,9 @@
-#include <dbgu.h>
-#include <fifo.h>
-#include <errno.h>
-#include <stdio.h>
-
 #include "at91rm9200.h"
+#include <cpu.h>
+#include <dbgu.h>
+#include <errno.h>
+#include <fifo.h>
+#include <stdio.h>
 
 fifo_t rx_fifo = {0};
 
@@ -21,9 +21,12 @@ void dbgu_rx(void) {
 int getchar(void) {
   while (1) {
     char c;
+
+    disable_interrupts();
     if (fifo_get(&rx_fifo, &c)) {
       return c;
     }
+    enable_interrupts();
   }
 }
 
