@@ -6,7 +6,7 @@
 #include <time.h>
 #include "at91rm9200.h"
 
-#define SCLK_FREQUENCY 32768
+#define SCLK_RESOLUTION 32768
 #define INTERNAL_RAM ((void *)0x00200000)
 
 int get_cpsr(void);
@@ -38,7 +38,7 @@ static void init_exceptions(void) {
 static void init_system_timer(void) {
   // setup system_timer
   unsigned int clock_cycles =
-    (unsigned int)((float)SYSTEM_TIMER * ((float) SCLK_FREQUENCY / SEC));
+    (unsigned int)((float)SYSTEM_TIMER * ((float) SCLK_RESOLUTION / SEC));
   if (clock_cycles < 1) {
     PANIC("System Timer resolution insufficient");
   }

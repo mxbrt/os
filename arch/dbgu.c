@@ -24,6 +24,7 @@ int getchar(void) {
 
     disable_interrupts();
     if (fifo_get(&rx_fifo, &c)) {
+      enable_interrupts();
       return c;
     }
     enable_interrupts();
