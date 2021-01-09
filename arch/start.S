@@ -46,7 +46,7 @@ _start:
     mov sp, r0
     bl kernel
 
-_stack_base: .word 0x23FFFFFF
+_stack_base: .word 0x23FFFFFC
 
 .global get_cpsr
 get_cpsr:
@@ -56,4 +56,14 @@ get_cpsr:
 .global set_cpsr
 set_cpsr:
     msr CPSR, r0
+    mov pc, lr
+
+.global get_spsr
+get_spsr:
+    mrs r0, SPSR
+    mov pc, lr
+
+.global set_spsr
+set_spsr:
+    msr SPSR, r0
     mov pc, lr

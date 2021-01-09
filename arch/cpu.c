@@ -57,5 +57,4 @@ void init(void) {
   init_aic();
   init_dbgu();
   init_system_timer();
-  enable_interrupts();
 }

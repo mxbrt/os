@@ -1,7 +1,6 @@
 #include "at91rm9200.h"
 #include <cpu.h>
 #include <dbgu.h>
-#include <errno.h>
 #include <fifo.h>
 #include <stdio.h>
 

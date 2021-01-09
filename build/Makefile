@@ -25,8 +25,8 @@ CFLAGS= \
 		-g
 
 LSCRIPT = kernel.ld
-OBJ += sys/kernel.o
-OBJ += lib/string.o lib/stdio.o lib/fifo.o
+OBJ += sys/kernel.o sys/thread.o sys/syscall.o
+OBJ += lib/string.o lib/stdio.o lib/fifo.o lib/list.o
 OBJ += arch/exception.o arch/cpu.o arch/dbgu.o arch/start.o arch/ivt.o
 
 CROSS = arm-none-eabi-

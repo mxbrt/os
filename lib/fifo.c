@@ -1,5 +1,4 @@
 #include <fifo.h>
-#include <errno.h>
 
 int fifo_put(fifo_t * fifo, char c) {
     if (fifo->cnt >= FIFO_SIZE) {

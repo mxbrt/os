@@ -2,27 +2,20 @@
 #include <dbgu.h>
 #include <stdio.h>
 #include <string.h>
+#include <thread.h>
+#include <panic.h>
 
-void calculation(void) {
-    char c = 'A';
-    for (int i = 0; i < 300; i++) {
-      printf("%c", c);
-      for (int j = 0; j < 3000000; j++) {};
-      if ((i+1) % 100 == 0) c += 1;
-      if ((i+1) % 20 == 0) printf("\n");
-    }
-    printf("\n");
-}
-
-void main(void) {
+void kernel_thread(void) {
   while (1) {
-    calculation();
-    char c = (char)getchar();
-    printf("Got character: %c\n", c);
+    // TODO: enable sleep mode
   }
 }
 
 void kernel(void) {
   init();
-  main();
+  scheduler_init();
+  thread_init(&kernel_thread);
+  // the scheduler is called from the interrupt context, wait for first tick
+  enable_interrupts();
+  while(1) {}
 }
