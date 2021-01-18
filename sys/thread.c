@@ -102,9 +102,9 @@ unsigned int* scheduler_tick(unsigned int regs[16]) {
 // Threads
 void thread_echo(void) {
   int c = getchar();
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 40; i++) {
     printf("%c", c);
-    for (int j = 0; j < 30000000; j++) {};
+    for (int j = 0; j < 3000000; j++) {};
   }
 }
 
