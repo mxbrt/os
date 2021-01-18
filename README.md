@@ -25,4 +25,11 @@ To run our code you (hopefully!) only need to call
 cd build && make run
 ```
 
+If it's not working some environment variables may be missing:
+```
+LD_LIBRARY_PATH=/usr/local/lib:/import/sage-7.4/local/lib/
+export LD_LIBRARY_PATH
+PATH="$PATH:/home/mi/linnert/arm/bin/"
+```
+
 Have fun!
