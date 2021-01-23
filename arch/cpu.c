@@ -45,11 +45,16 @@ static void init_system_timer(void) {
 
   AT91C_BASE_ST->ST_PIMR = clock_cycles;
   AT91C_BASE_ST->ST_IER = AT91C_ST_PITS;
+  AT91C_BASE_ST->ST_RTMR = 0x20; // = 1 millisecond
 }
 
 static void init_aic(void) {
   // enable system interrupts
   AT91C_BASE_AIC->AIC_IECR = 2;
+}
+
+unsigned int time(void) {
+  return AT91C_BASE_ST->ST_CRTR;
 }
 
 void init(void) {

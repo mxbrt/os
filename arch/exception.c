@@ -18,9 +18,14 @@ void __attribute__((interrupt ("UNDEF"))) undef_handler(void) {
 unsigned int *swi_handler(unsigned int regs[16]) {
   (void)(regs);
   char syscall_number = *((char *)(regs[15] - 0x4));
+  // exit
   if (syscall_number == 0x1) {
-    printf("\n");
     return thread_finish();
+  // sleep
+  } else if (syscall_number == 0x2) {
+    regs[15] += 0x4;
+    scheduler_save_regs(regs);
+    return thread_sleep();
   } else {
     PANIC("syscall not implemented: %x\n", syscall_number);
   }
@@ -38,11 +43,12 @@ void __attribute__((interrupt ("ABORT"))) data_abort_handler(void) {
 
 unsigned int *irq_handler(unsigned int regs[16]) {
   (void)(AT91C_BASE_AIC->AIC_IVR);
+
   unsigned int system_time_status = AT91C_BASE_ST->ST_SR;
   unsigned int *return_regs = regs;
   if (system_time_status) {
-    printf("!");
-    return_regs = scheduler_tick(regs);
+    scheduler_save_regs(regs);
+    return_regs = scheduler_tick();
     goto out;
   }
 
