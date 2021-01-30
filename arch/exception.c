@@ -10,24 +10,37 @@
 #include "at91rm9200.h"
 
 void __attribute__((interrupt ("UNDEF"))) undef_handler(void) {
-  int* undef_instruction;
-  __asm volatile("mov %0, lr" : "=r" (undef_instruction));
-  PANIC("Undefined exception at %p\n", undef_instruction - 1);
+  PANIC("Undefined exception\n");
 }
 
 unsigned int *swi_handler(unsigned int regs[16]) {
   (void)(regs);
   char syscall_number = *((char *)(regs[15] - 0x4));
+  regs[15] += 0x4;
   // exit
   if (syscall_number == 0x1) {
     return thread_finish();
   // sleep
   } else if (syscall_number == 0x2) {
-    regs[15] += 0x4;
     scheduler_save_regs(regs);
-    return thread_sleep();
+    return thread_sleep(regs[0]);
+  // dbgu read
+  } else if (syscall_number == 0x3) {
+    char c = 0;
+    if (dbgu_getchar(&c)) {
+      // save result to r0 and resume thread
+      regs[0] = c;
+      return regs;
+    } else {
+      // block thread until a character arrives
+      return thread_block(THREAD_BLOCKED_IO_READ, &dbgu_getchar);
+    }
+  } else if (syscall_number == 0x4) {
+    char c = (char)regs[0];
+    dbgu_putchar(c);
+    return regs;
   } else {
-    PANIC("syscall not implemented: %x\n", syscall_number);
+    PANIC("syscall not implemented\n");
   }
 }
 
@@ -38,7 +51,7 @@ void __attribute__((interrupt ("ABORT"))) prefetch_abort_handler(void) {
 void __attribute__((interrupt ("ABORT"))) data_abort_handler(void) {
   int* abort_instruction;
   __asm volatile("mov %0, lr" : "=r" (abort_instruction));
-  PANIC("data abort at %p\n", abort_instruction - 1);
+  PANIC("data abort\n");
 }
 
 unsigned int *irq_handler(unsigned int regs[16]) {
@@ -58,7 +71,6 @@ unsigned int *irq_handler(unsigned int regs[16]) {
     thread_init(&thread_echo);
     goto out;
   }
-
   PANIC("unknown interrupt");
 
 out:

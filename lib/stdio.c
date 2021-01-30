@@ -1,11 +1,11 @@
-#include <dbgu.h>
+#include <syscall.h>
 #include <stdio.h>
 #include <string.h>
 
 int puts(const char *s) {
   int cnt = 0;
   while (*s) {
-    putchar(*s++);
+    syscall_dbgu_write(*s++);
     cnt++;
   }
   return cnt;
@@ -29,7 +29,7 @@ void print_hex(unsigned int x, int pad) {
 
   int start = pad ? 0 : i+(i!=sizeof(str)-1);
   for (int j = start; j < 8; j++) {
-    putchar(str[j]);
+    syscall_dbgu_write(str[j]);
   }
 }
 
@@ -44,7 +44,7 @@ int printf(const char *format, ...) {
     if (*c == '%' && format_char) {
       switch (format_char) {
         case 'c':
-          putchar((int)(unsigned char)va_arg(ap, int));
+          syscall_dbgu_write((unsigned char)va_arg(ap, int));
           break;
         case 'p':
           puts("0x");
@@ -58,13 +58,13 @@ int printf(const char *format, ...) {
           break;
         default:
           // print unknown format parameters
-          putchar(*c);
-          putchar(*c+1);
+          syscall_dbgu_write(*c);
+          syscall_dbgu_write(*c+1);
           break;
       }
       c += 2;
     } else {
-      putchar(*c++);
+      syscall_dbgu_write(*c++);
     }
   }
   va_end(ap);

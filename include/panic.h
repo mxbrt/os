@@ -1,17 +1,15 @@
 #ifndef __PANIC_H_
 #define __PANIC_H_
 
-#include "stdio.h"
+#include <dbgu.h>
 
-#define PANIC(...) do { \
-    printf("PANIC! "); \
-    printf(__VA_ARGS__); \
+#define PANIC(msg) do { \
+    kmsg("PANIC: ", #msg); \
     while(1) {};\
 } while(0);
 
-#define WARN(...) do { \
-    printf("Warning: "); \
-    printf(__VA_ARGS__); \
+#define WARN(msg) do { \
+    kmsg("WARNING: ", #msg); \
 } while(0);
 
 #endif // __PANIC_H_

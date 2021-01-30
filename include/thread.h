@@ -14,9 +14,11 @@
 typedef enum {
     THREAD_FINISH,
     THREAD_BLOCKED,
+    THREAD_READY,
     THREAD_RUNNING,
-    THREAD_WAITING,
 } thread_state_t;
+
+typedef int io_callback_t(char *);
 
 typedef enum {
     THREAD_BLOCKED_SLEEP,
@@ -40,7 +42,8 @@ typedef struct tcb_t {
 
 int thread_init(void *fn);
 unsigned int* thread_finish(void);
-unsigned int* thread_sleep(void);
+unsigned int *thread_block(thread_blocked_reason_t reason, void *data);
+unsigned int* thread_sleep(unsigned int msec);
 
 void scheduler_init(void);
 void scheduler_save_regs(unsigned int regs[16]);

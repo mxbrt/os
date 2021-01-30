@@ -24,7 +24,7 @@ void idle_thread_fn(void) {
 
 void thread_tcb_init(tcb_t* tcb, void *fn) {
   memset(tcb, 0, sizeof(*tcb));
-  tcb->state = THREAD_WAITING;
+  tcb->state = THREAD_READY;
   tcb->regs[13] = (size_t)&tcb->stack[THREAD_STACK_SIZE - sizeof(size_t)];
   tcb->regs[14] = (size_t)&syscall_exit;
   tcb->regs[15] = (size_t)fn + 0x4;
@@ -87,20 +87,56 @@ unsigned int* thread_finish(void) {
   }
 }
 
-unsigned int* thread_sleep(void) {
+unsigned int *thread_block(thread_blocked_reason_t reason, void* data) {
+  if (thread_list_head == NULL) {
+    PANIC("THREAD_BLOCK WITHOUT RUNNING THREAD");
+  }
+
+  tcb_t *cur_tcb = thread_list_head->data;
+  cur_tcb->blocked.reason = reason;
+  cur_tcb->blocked.data = (void*)data;
+  cur_tcb->state = THREAD_BLOCKED;
+  return scheduler_tick();
+}
+
+unsigned int* thread_sleep(unsigned int msec) {
   if (thread_list_head == NULL) {
     PANIC("SLEEP SYSCALL WITHOUT RUNNING THREAD");
   }
 
   unsigned int current_time = time();
-  unsigned int wakeup = (current_time + 100) & ((1 << 20) - 1);
-  tcb_t *cur_tcb = thread_list_head->data;
-  cur_tcb->blocked.reason = THREAD_BLOCKED_SLEEP;
-  cur_tcb->blocked.data = (void*)wakeup;
-  cur_tcb->state = THREAD_BLOCKED;
-  return scheduler_tick();
+  unsigned int wakeup = (current_time + msec) & ((1 << 20) - 1);
+  return thread_block(THREAD_BLOCKED_SLEEP, (void*)wakeup);
 }
 
+static int thread_prepare(tcb_t *tcb, unsigned int current_time) {
+  if (tcb->state == THREAD_BLOCKED) {
+    if (tcb->blocked.reason == THREAD_BLOCKED_SLEEP) {
+      unsigned int wakeup = (size_t)tcb->blocked.data;
+      if (current_time > wakeup) {
+        tcb->state = THREAD_READY;
+        return 1;
+      }
+    } else if (tcb->blocked.reason == THREAD_BLOCKED_IO_READ) {
+      char c;
+      if (((io_callback_t*)tcb->blocked.data)(&c)) {
+        tcb->regs[0] = c;
+        tcb->state = THREAD_READY;
+        return 1;
+      }
+    } else if (tcb->blocked.reason == THREAD_BLOCKED_IO_WRITE) {
+      char c = (char)tcb->regs[0];
+      if (((io_callback_t*)tcb->blocked.data)(&c)) {
+        tcb->state = THREAD_READY;
+        return 1;
+      }
+    }
+  }
+  if (tcb->state == THREAD_READY) {
+    return 1;
+  }
+  return 0;
+}
 
 // Scheduler
 void scheduler_init(void) {
@@ -108,21 +144,6 @@ void scheduler_init(void) {
   memset(threads, 0, sizeof(threads));
   thread_list_head = NULL;
   thread_tcb_init(&idle_thread, &idle_thread_fn);
-}
-
-int scheduler_check_ready(tcb_t *tcb, unsigned int current_time) {
-  if (tcb->state == THREAD_BLOCKED) {
-    if (tcb->blocked.reason == THREAD_BLOCKED_SLEEP) {
-      unsigned int wakeup = (size_t)tcb->blocked.data;
-      if (current_time > wakeup) {
-        return 1;
-      }
-    }
-  }
-  if (tcb->state == THREAD_WAITING) {
-    return 1;
-  }
-  return 0;
 }
 
 void scheduler_save_regs(unsigned int regs[16]) {
@@ -148,28 +169,28 @@ unsigned int* scheduler_tick(void) {
   list_t *cur_thread = thread_list_head;
   list_t *next_thread = thread_list_head->next;
   while (next_thread != cur_thread &&
-      !scheduler_check_ready(next_thread->data, current_time)) {
+      !thread_prepare(next_thread->data, current_time)) {
     next_thread = next_thread->next;
   }
 
-  if (!scheduler_check_ready(next_thread->data, current_time)) {
+  if (((tcb_t*)next_thread->data)->state != THREAD_READY) {
     return thread_load(&idle_thread);
   }
 
   tcb_t* cur_tcb = cur_thread->data;
   thread_list_head = next_thread;
   if (cur_tcb->state == THREAD_RUNNING) {
-    cur_tcb->state = THREAD_WAITING;
+    cur_tcb->state = THREAD_READY;
   }
   return thread_load(thread_list_head->data);
 }
 
 // Threads
 void thread_echo(void) {
-  int c = getchar();
+  int c = syscall_dbgu_read();
   for (int i = 0; i < 40; i++) {
     printf("%c", c);
-    syscall_sleep(0);
+    syscall_sleep(100);
   }
 }
 

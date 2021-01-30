@@ -67,3 +67,8 @@ get_spsr:
 set_spsr:
     msr SPSR, r0
     mov pc, lr
+
+.global syscall_dbgu_read
+syscall_dbgu_read:
+    svc #0x3
+    mov pc, lr
