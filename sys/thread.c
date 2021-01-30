@@ -22,9 +22,10 @@ void idle_thread_fn(void) {
   }
 }
 
-void thread_tcb_init(tcb_t* tcb, void *fn) {
+void thread_tcb_init(tcb_t* tcb, void *fn, unsigned int arg) {
   memset(tcb, 0, sizeof(*tcb));
   tcb->state = THREAD_READY;
+  tcb->regs[0] = (unsigned int)arg;
   tcb->regs[13] = (size_t)&tcb->stack[THREAD_STACK_SIZE - sizeof(size_t)];
   tcb->regs[14] = (size_t)&syscall_exit;
   tcb->regs[15] = (size_t)fn + 0x4;
@@ -32,7 +33,7 @@ void thread_tcb_init(tcb_t* tcb, void *fn) {
               (1 << 6);            // disable fiq
 }
 
-int thread_init(void *fn) {
+tcb_t* thread_create(void) {
   // find free tcb slot
   int free_idx = 0;
   while (free_idx < N_THREADS) {
@@ -44,21 +45,28 @@ int thread_init(void *fn) {
 
   if (free_idx >= N_THREADS) {
     WARN("Could not start thread: no capacity\n");
-    return 1;
+    return NULL;
   }
 
   tcb_t *tcb = &threads[free_idx];
   list_t *thread_node = &thread_list[free_idx];
   list_init(thread_node, tcb);
 
-  thread_tcb_init(tcb, fn);
 
   if (thread_list_head == NULL) {
     thread_list_head = thread_node;
   } else {
     list_insert(thread_list_head, thread_node);
   }
-  return 0;
+  return tcb;
+}
+
+void thread_start(void *fn, unsigned int arg) {
+  tcb_t *tcb = thread_create();
+  if (tcb == NULL) {
+    return;
+  }
+  thread_tcb_init(tcb, fn, arg);
 }
 
 unsigned int* thread_load(tcb_t* tcb) {
@@ -132,7 +140,7 @@ static int thread_prepare(tcb_t *tcb, unsigned int current_time) {
       }
     }
   }
-  if (tcb->state == THREAD_READY) {
+  if (tcb->state == THREAD_READY || tcb->state == THREAD_RUNNING) {
     return 1;
   }
   return 0;
@@ -143,7 +151,7 @@ void scheduler_init(void) {
   memset(thread_list, 0, sizeof(thread_list));
   memset(threads, 0, sizeof(threads));
   thread_list_head = NULL;
-  thread_tcb_init(&idle_thread, &idle_thread_fn);
+  thread_tcb_init(&idle_thread, &idle_thread_fn, 0);
 }
 
 void scheduler_save_regs(unsigned int regs[16]) {
@@ -168,12 +176,15 @@ unsigned int* scheduler_tick(void) {
 
   list_t *cur_thread = thread_list_head;
   list_t *next_thread = thread_list_head->next;
-  while (next_thread != cur_thread &&
-      !thread_prepare(next_thread->data, current_time)) {
+
+  while (!thread_prepare(next_thread->data, current_time)
+        && next_thread != cur_thread) {
     next_thread = next_thread->next;
   }
 
-  if (((tcb_t*)next_thread->data)->state != THREAD_READY) {
+  tcb_t* next_tcb = next_thread->data;
+  if (next_tcb->state != THREAD_READY &&
+      next_tcb->state != THREAD_RUNNING) {
     return thread_load(&idle_thread);
   }
 
@@ -182,15 +193,6 @@ unsigned int* scheduler_tick(void) {
   if (cur_tcb->state == THREAD_RUNNING) {
     cur_tcb->state = THREAD_READY;
   }
+
   return thread_load(thread_list_head->data);
 }
-
-// Threads
-void thread_echo(void) {
-  int c = syscall_dbgu_read();
-  for (int i = 0; i < 40; i++) {
-    printf("%c", c);
-    syscall_sleep(100);
-  }
-}
-

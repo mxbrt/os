@@ -40,7 +40,7 @@ typedef struct tcb_t {
     thread_state_t state;
 } tcb_t;
 
-int thread_init(void *fn);
+void thread_start(void *fn, unsigned int arg);
 unsigned int* thread_finish(void);
 unsigned int *thread_block(thread_blocked_reason_t reason, void *data);
 unsigned int* thread_sleep(unsigned int msec);

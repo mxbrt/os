@@ -72,3 +72,8 @@ set_spsr:
 syscall_dbgu_read:
     svc #0x3
     mov pc, lr
+
+.global syscall_thread_start
+syscall_thread_start:
+    svc #0x5
+    mov pc, lr

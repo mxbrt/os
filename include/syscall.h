@@ -6,6 +6,6 @@ void syscall_sleep(unsigned int msec);
 
 char syscall_dbgu_read(void);
 void syscall_dbgu_write(char c);
-void syscall_thread_create(void *fn, void *args);
+int syscall_thread_start(void *fn, unsigned int arg);
 
 #endif // __SYSCALL_H_
