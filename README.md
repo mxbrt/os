@@ -32,4 +32,6 @@ export LD_LIBRARY_PATH
 PATH="$PATH:/home/mi/linnert/arm/bin/"
 ```
 
+You may also source the script `build/andorra_env.sh` to initialize this environment.
+
 Have fun!

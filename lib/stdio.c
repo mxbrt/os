@@ -59,7 +59,7 @@ int printf(const char *format, ...) {
         default:
           // print unknown format parameters
           syscall_dbgu_write(*c);
-          syscall_dbgu_write(*c+1);
+          syscall_dbgu_write(*(c+1));
           break;
       }
       c += 2;
